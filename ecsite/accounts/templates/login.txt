@@ -1,0 +1,74 @@
+{% load static %}
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+		<title>Input String</title>
+		<link rel='stylesheet' type='text/css' href='{% static "account/css/style.css" %}' />
+	</head>
+	<body>
+		<h4>名前入力</h4>
+		<form action='/exapp1/printMsg/' method='POST'>
+			<table>
+				<tr>
+					<th>名前を入力してください</th>
+					<td><input type='text' name='name' class='text' /></td>
+				</tr>
+				<tr>
+					<td colspan='2'><input type='submit' value='送信！' /></td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>会員ログイン</title>
+</head>
+<body>
+    <h1 class="title">ログインしてください。</h1>
+    
+        {% if error %}
+          <p class="notification is-danger">
+            {{ error }}
+          </p>
+        {% endif %}
+    
+        <form method="post">
+          {% csrf_token %}
+    
+          {% for field in form %}
+          <div style="display:flex; align-items:center; margin-bottom:12px;">
+        
+            <label for="{{ field.id_for_label }}" style="width:120px; font-weight:bold;">
+              {{ field.label }}：
+            </label>
+        
+            <div style="flex:1;">
+              {{ field }}
+            </div>
+        
+          </div>
+        {% endfor %}
+    
+
+        <div style="text-align:center; margin-top:20px;">
+            <button class="button is-primary" style="width:200px;">
+              ログイン
+            </button>
+        </div>
+          
+    
+        </form>
+    
+        <p class="mt-4">
+          <a href="{% url 'registerUser' %}">会員登録</a>
+        </p>
+    
+    </section>
+    </body>
+    </html>
