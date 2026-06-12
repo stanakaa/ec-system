@@ -1,0 +1,44 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>検索結果</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>
+            キーワード "{{ keyword }}" カテゴリ "{{ category_name }}" の検索結果
+        </h2>
+
+        <table border="1">
+            <tr>
+                <th>商品名</th>
+                <th>商品の色</th>
+                <th>メーカー名</th>
+                <th>価格</th>
+            </tr>
+
+            {% for item in items %}
+                <tr>
+                    <td>
+                        <a href="{% url 'item_detail' item.item_id %}">
+                            {{ item.name }}
+                        </a>
+                    </td>
+                    <td>{{ item.color }}</td>
+                    <td>{{ item.manufacturer }}</td>
+                    <td>{{ item.price }}円</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">該当する商品はありません。</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <p>
+            <a href="{% url 'top' %}">商品検索へ</a>
+        </p>
+    </body>
+</html>
