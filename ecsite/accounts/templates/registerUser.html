@@ -9,6 +9,10 @@
 		<h2>会員情報を入力してください。</h2>
         <form action="{% url 'register_user_confirm' %}" method="POST">
             {% csrf_token %}
+
+            {% if error %}
+                <p>{{ error }}</p>
+            {% endif %}
         
             <table>
                 {% for field in form %}
@@ -27,7 +31,7 @@
         </form>
         
         <p>
-            <a href="{% url 'register_user' %}">会員登録</a>
+            <a href="{% url 'top' %}">商品検索へ</a>
         </p>
 
 	</body>
