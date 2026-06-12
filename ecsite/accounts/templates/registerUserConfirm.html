@@ -14,19 +14,22 @@
             <table>
                 <tr>
                     <th>会員ID：</th>
-                    <td><input type="text" value="{{ form.user_id.value }}" readonly></td>
+                    <td><input type="text" name="user_id" value="{{ form.user_id.value }}" readonly></td>
                 </tr>
                 <tr>
                     <th>パスワード：</th>
-                    <td><input type="password" value="{{ form.password.value }}" readonly></td>
+                    <td>
+                        <input type="password" name="password" value="{{ form.password.value }}" readonly>
+                        <input type="hidden" name="password2" value="{{ form.password2.value }}">
+                    </td>
                 </tr>
                 <tr>
                     <th>お名前：</th>
-                    <td><input type="text" value="{{ form.name.value }}" readonly></td>
+                    <td><input type="text" name="name" value="{{ form.name.value }}" readonly></td>
                 </tr>
                 <tr>
                     <th>ご住所：</th>
-                    <td><input type="text" value="{{ form.address.value }}" readonly></td>
+                    <td><input type="text" name="address" value="{{ form.address.value }}" readonly></td>
                 </tr>
 
                 <tr>
@@ -36,6 +39,10 @@
                 </tr>
             </table>
         </form>
+
+        <p>
+            <a href="{% url 'top' %}">商品検索へ</a>
+        </p>
 
 	</body>
 </html>

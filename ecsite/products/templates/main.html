@@ -3,12 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>商品検索</title>
-        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     </head>
 
     <body>
-        <h1>商品検索</h1>
-
+        <h2>商品の検索を行います。</h2>
+		<br>
 		<form action="{% url 'show_result' %}" method="GET">
 			<table>
 				<tr>
@@ -26,24 +25,23 @@
 		</form>
 
         <p>
-            <a href="{% url 'cart' %}">ショッピングカートを見る</a>
+            <a href="#">ショッピングカートを見る</a>
         </p>
 
         <p>
-            <a href="{% url 'purchase_history' %}">購入履歴</a>
+            <a href="#">購入履歴</a>
         </p>
 
-        <hr>
-
         {% if login_user_id %}
-            <p>ようこそ{{ login_name }}さん</p>
+			<br>
+            <h5>ようこそ{{ login_name }}さん</h5>
 
             <p>
-                <a href="{% url 'user_info' %}">会員情報の確認</a>
+                <a href="#">会員情報の確認</a>
             </p>
 
             <p>
-                <a href="{% url 'update_user' %}">会員情報の変更</a>
+                <a href="#">会員情報の変更</a>
             </p>
 
             <p>
@@ -51,7 +49,7 @@
             </p>
 
             <p>
-                <a href="{% url 'admin_login' %}">管理者ページ</a>
+                <a href="#">管理者ページ</a>
             </p>
 
         {% else %}
@@ -60,7 +58,7 @@
             </p>
 
             <p>
-                <a href="{% url 'admin_login' %}">管理者ページ</a>
+                <a href="#">管理者ページ</a>
             </p>
         {% endif %}
     </body>

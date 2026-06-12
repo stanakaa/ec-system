@@ -7,7 +7,12 @@
 	</head>
 	<body>
 		<h2>ログインしてください。</h2>
-        <form action="{% url 'top' %}" method="POST">
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+        
+        <form action="{% url 'login' %}" method="POST">
             {% csrf_token %}
         
             <table>

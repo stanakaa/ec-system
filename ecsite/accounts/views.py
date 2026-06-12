@@ -12,7 +12,7 @@ class RegisterUser(View):
         context = {
             "form": form,
         }
-        return render(request, "register_user.html", context)
+        return render(request, "registerUser.html", context)
 
 
 class RegisterUserConfirm(View):
@@ -23,7 +23,7 @@ class RegisterUserConfirm(View):
             context = {
                 "form": form,
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         user_id = form.cleaned_data["user_id"]
 
@@ -32,12 +32,12 @@ class RegisterUserConfirm(View):
                 "form": form,
                 "error": "この会員IDはすでに使用されています。",
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         context = {
             "form": form,
         }
-        return render(request, "register_user_confirm.html", context)
+        return render(request, "registerUserConfirm.html", context)
 
 
 class RegisterUserCommit(View):
@@ -48,7 +48,7 @@ class RegisterUserCommit(View):
             context = {
                 "form": form,
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         new_user = User()
         new_user.user_id = form.cleaned_data["user_id"]
@@ -60,7 +60,7 @@ class RegisterUserCommit(View):
         context = {
             "name": new_user.name,
         }
-        return render(request, "register_user_commit.html", context)
+        return render(request, "registerUserCommit.html", context)
 
 
 
@@ -98,4 +98,11 @@ class Login(View):
             request.session["name"] = user.name
 
             return redirect("top")
+        
+
+class Logout(View):
+    def get(self, request, *args, **kwargs):
+        request.session.flush()
+        return redirect("login")
+
         
