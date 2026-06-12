@@ -1,0 +1,19 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>退会確認</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>{{ user.name }}さん、本当に退会しますか？</h2>
+        <form action="{% url 'withdraw_commit' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="退会">
+        </form>
+        <p>
+            <a href="{% url 'top' %}">商品検索へ</a>
+        </p>
+    </body>
+</html

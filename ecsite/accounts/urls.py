@@ -13,5 +13,6 @@ urlpatterns = [
     path("updateUser/", views.UpdateUser.as_view(), name="update_user"),
     path("updateUserConfirm/", views.UpdateUserConfirm.as_view(), name="update_user_confirm"),
     path("updateUserCommit/", views.UpdateUserCommit.as_view(), name="update_user_commit"),
-    path("withdrawConfirm/", views.WithdrawConfir.as_view(), name="withdraw_confirm")
+    path("withdrawConfirm/", views.WithdrawConfirm.as_view(), name="withdraw_confirm"),
+    path("withdrawCommit/", views.WithdrawCommit.as_view(), name="withdraw_commit"),
 ]
