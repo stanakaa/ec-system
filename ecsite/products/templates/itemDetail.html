@@ -1,0 +1,70 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>商品詳細</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>商品詳細</h2>
+
+        <table border="1">
+            <tr>
+                <th>商品名</th>
+                <td>{{ item.name }}</td>
+            </tr>
+
+            <tr>
+                <th>商品の色</th>
+                <td>{{ item.color }}</td>
+            </tr>
+
+            <tr>
+                <th>メーカー名</th>
+                <td>{{ item.manufacturer }}</td>
+            </tr>
+
+            <tr>
+                <th>価格</th>
+                <td>{{ item.price }}円</td>
+            </tr>
+
+            <tr>
+                <th>在庫数</th>
+                <td>{{ item.stock }}</td>
+            </tr>
+        </table>
+
+        {% if item.stock > 0 %}
+            <form action="{% url 'add_cart' item.item_id %}" method="POST">
+                {% csrf_token %}
+
+                <p>
+                    数量
+                    <select name="amount">
+                        {% for amount in amount_list %}
+                            <option value="{{ amount }}">{{ amount }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+
+                <input type="submit" value="ショッピングカートに入れる">
+
+            </form>
+
+            <p>
+                ※ログインしていない状態では、ボタンのクリック後、
+                <a href="{% url 'login' %}">ログイン画面</a>に転送されます。
+            </p>
+
+        {% else %}
+            <p>在庫がありません。</p>
+        {% endif %}
+
+
+        <p>
+            <a href="{% url 'top' %}">商品検索</a>
+        </p>
+    </body>
+</html>

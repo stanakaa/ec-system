@@ -148,7 +148,7 @@ class RegisterUserConfirm(View):
             context = {
                 "form": form,
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         user_id = form.cleaned_data["user_id"]
 
@@ -157,12 +157,12 @@ class RegisterUserConfirm(View):
                 "form": form,
                 "error": "この会員IDはすでに使用されています。",
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         context = {
             "form": form,
         }
-        return render(request, "register_user_confirm.html", context)
+        return render(request, "registerUserConfirm.html", context)
 
 
 class RegisterUserCommit(View):
@@ -173,7 +173,7 @@ class RegisterUserCommit(View):
             context = {
                 "form": form,
             }
-            return render(request, "register_user.html", context)
+            return render(request, "registerUser.html", context)
 
         new_user = User()
         new_user.user_id = form.cleaned_data["user_id"]
@@ -185,7 +185,7 @@ class RegisterUserCommit(View):
         context = {
             "name": new_user.name,
         }
-        return render(request, "register_user_commit.html", context)
+        return render(request, "registerUserCommit.html", context)
 
 
 
@@ -360,5 +360,35 @@ class UpdateUserCommit(View):
         return render(request, "updateUserCommit.html", context)
 
 
+class WithdrawConfirm(View):
+    def get(self, request, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
 
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        context = {
+            "user": user,
+        }
+        return render(request, "withdrawConfirm.html", context)
+
+
+class WithdrawCommit(View):
+    def post(self, request, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        name = user.name
+
+        user.delete()
+        request.session.flush()
+
+        context = {
+            "name": name,
+        }
+        return render(request, "withdrawCommit.html", context)
         

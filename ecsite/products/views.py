@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
-# from .models import User, Post
+from .models import Item
 from .forms import SearchForm
 
 # Create your views here.
@@ -49,3 +49,19 @@ class ShowResult(View):
             "login_name": request.session.get("name"),
         }
         return render(request, "searchResult.html", context)
+    
+
+class ItemDetail(View):
+    def get(self, request, item_id, *args, **kwargs):
+        item = Item.objects.get(item_id=item_id)
+
+        amount_list = range(1, item.stock + 1)
+
+        context = {
+            "item": item,
+            "amount_list": amount_list,
+            "login_user_id": request.session.get("user_id"),
+            "login_name": request.session.get("name"),
+        }
+        return render(request, "itemDetail.html", context)
+    
