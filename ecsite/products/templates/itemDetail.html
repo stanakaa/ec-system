@@ -37,7 +37,7 @@
         </table>
 
         {% if item.stock > 0 %}
-            <form action="{% url 'add_cart' item.item_id %}" method="POST">
+            <form>
                 {% csrf_token %}
 
                 <p>
@@ -61,7 +61,6 @@
         {% else %}
             <p>在庫がありません。</p>
         {% endif %}
-
 
         <p>
             <a href="{% url 'top' %}">商品検索</a>
