@@ -80,7 +80,7 @@ class AddCart(View):
 
         amount = int(request.POST.get("amount"))
 
-        # すでに同じ商品がカートに入っているかの確認
+        # すでに同じ商品がカートに入っているかどうかの確認
         cart_item = ShoppingCart.objects.filter(user=user,item=item).first()
 
         # カートに入れる数量が在庫数を超えないようにしてる
@@ -148,10 +148,7 @@ class DeleteCart(View):
         user_id = request.session["user_id"]
         user = User.objects.get(user_id=user_id)
 
-        cart_item = ShoppingCart.objects.filter(
-            id=cart_id,
-            user=user,
-        ).first()
+        cart_item = ShoppingCart.objects.filter(id=cart_id, user=user).first()
 
         if cart_item is not None:
             cart_item.delete()
