@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from .models import User
+from products.models import ShoppingCart
 from .forms import LoginForm, RegisterForm, UpdateUserForm
 
 
@@ -50,8 +51,17 @@ class RegisterUserCommit(View):
             }
             return render(request, "registerUser.html", context)
 
+        user_id = form.cleaned_data["user_id"]
+
+        if User.objects.filter(user_id=user_id).exists():
+            context = {
+                "form": form,
+                "error": "この会員IDはすでに使用されています。",
+            }
+            return render(request, "registerUser.html", context)
+
         new_user = User()
-        new_user.user_id = form.cleaned_data["user_id"]
+        new_user.user_id = user_id
         new_user.password = form.cleaned_data["password"]
         new_user.name = form.cleaned_data["name"]
         new_user.address = form.cleaned_data["address"]
@@ -63,41 +73,55 @@ class RegisterUserCommit(View):
         return render(request, "registerUserCommit.html", context)
 
 
-
 class Login(View):
-        def get(self, request, *args, **kwargs):
-            form = LoginForm()
+    def get(self, request, *args, **kwargs):
+        next_url = request.GET.get("next")
 
+        if "user_id" in request.session:
+            if next_url:
+                return redirect(next_url)
+
+            return redirect("top")
+
+        form = LoginForm()
+
+        context = {
+            "form": form,
+            "next": next_url,
+        }
+        return render(request, "login.html", context)
+    
+    def post(self, request, *args, **kwargs):
+        form = LoginForm(request.POST)
+        next_url = request.POST.get("next")
+
+        if not form.is_valid():
             context = {
                 "form": form,
+                "next": next_url,
             }
             return render(request, "login.html", context)
         
-        def post(self, request, *args, **kwargs):
-            form = LoginForm(request.POST)
+        user_id = form.cleaned_data.get("user_id")
+        password = form.cleaned_data.get("password")
 
-            if not form.is_valid():
-                context = {
-                    "form": form,
-                }
-                return render(request, "login.html", context)
-            
-            user_id = form.cleaned_data.get("user_id")
-            password = form.cleaned_data.get("password")
+        user = User.objects.filter(user_id=user_id, password=password).first()
 
-            user = User.objects.filter(user_id=user_id, password=password).first()
+        if user is None:
+            context = {
+                "form": form,
+                "error": "会員ID、またはパスワードが間違っています。",
+                "next": next_url,
+            }
+            return render(request, "login.html", context)
+        
+        request.session["user_id"] = user.user_id
+        request.session["name"] = user.name
 
-            if user is None:
-                context = {
-                    "form": form,
-                    "error": "会員ID、またはパスワードが間違っています。"
-                }
-                return render(request, "login.html", context)
-            
-            request.session["user_id"] = user.user_id
-            request.session["name"] = user.name
+        if next_url:
+            return redirect(next_url)
 
-            return redirect("top")
+        return redirect("top")
         
 
 class Logout(View):
@@ -119,125 +143,6 @@ class UserInfo(View):
         }
         return render(request, "userInfo.html", context)
 
-
-class UpdateUser(View):
-    def get(self, request, *args, **kwargs):
-        if "user_id" not in request.session:
-            return redirect("login")
-
-        user_id = request.session["user_id"]
-        user = User.objects.get(user_id=user_id)
-
-        form = UpdateUserForm(initial={
-            "user_id": user.user_id,
-            "name": user.name,
-            "address": user.address,
-        })
-
-        context = {
-            "form": form,
-        }
-        return render(request, "updateUser.html", context)
-
-
-class RegisterUserConfirm(View):
-    def post(self, request, *args, **kwargs):
-        form = RegisterForm(request.POST)
-
-        if not form.is_valid():
-            context = {
-                "form": form,
-            }
-            return render(request, "registerUser.html", context)
-
-        user_id = form.cleaned_data["user_id"]
-
-        if User.objects.filter(user_id=user_id).exists():
-            context = {
-                "form": form,
-                "error": "この会員IDはすでに使用されています。",
-            }
-            return render(request, "registerUser.html", context)
-
-        context = {
-            "form": form,
-        }
-        return render(request, "registerUserConfirm.html", context)
-
-
-class RegisterUserCommit(View):
-    def post(self, request):
-        form = RegisterForm(request.POST)
-
-        if not form.is_valid():
-            context = {
-                "form": form,
-            }
-            return render(request, "registerUser.html", context)
-
-        new_user = User()
-        new_user.user_id = form.cleaned_data["user_id"]
-        new_user.password = form.cleaned_data["password"]
-        new_user.name = form.cleaned_data["name"]
-        new_user.address = form.cleaned_data["address"]
-        new_user.save()
-
-        context = {
-            "name": new_user.name,
-        }
-        return render(request, "registerUserCommit.html", context)
-
-
-
-class Login(View):
-        def get(self, request, *args, **kwargs):
-            form = LoginForm()
-
-            context = {
-                "form": form,
-            }
-            return render(request, "login.html", context)
-        
-        def post(self, request, *args, **kwargs):
-            form = LoginForm(request.POST)
-
-            if not form.is_valid():
-                context = {
-                    "form": form,
-                }
-                return render(request, "login.html", context)
-            
-            user_id = form.cleaned_data.get("user_id")
-            password = form.cleaned_data.get("password")
-
-            user = User.objects.filter(user_id=user_id, password=password).first()
-
-            if user is None:
-                context = {
-                    "form": form,
-                    "error": "会員ID、またはパスワードが間違っています。"
-                }
-                return render(request, "login.html", context)
-            
-            request.session["user_id"] = user.user_id
-            request.session["name"] = user.name
-
-            return redirect("top")
-
-
-class UserInfo(View):
-    def get(self, request, *args, **kwargs):
-        if "user_id" not in request.session:
-            return redirect("login")
-
-        user_id = request.session["user_id"]
-        user = User.objects.get(user_id=user_id)
-
-        context = {
-            "user": user,
-        }
-        return render(request, "userInfo.html", context)
-    
 
 class UpdateUser(View):
     def get(self, request, *args, **kwargs):
@@ -344,7 +249,8 @@ class UpdateUserCommit(View):
             new_user.address = form.cleaned_data["address"]
             new_user.save()
 
-            # ShoppingCart.objects.filter(user=old_user).update(user=new_user)
+            # ユーザIDが変更になったときにカート情報を新しいユーザIDに移す
+            ShoppingCart.objects.filter(user=old_user).update(user=new_user)
             # Purchase.objects.filter(user=old_user).update(user=new_user)
 
             old_user.delete()
