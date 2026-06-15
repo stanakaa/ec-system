@@ -1,0 +1,38 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>管理者ログイン</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>管理者ログイン</h2>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        <form action="{% url 'admin_login' %}" method="POST">
+            {% csrf_token %}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <th>{{ field.label }}：</th>
+                        <td>{{ field }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="ログイン">
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <p>
+            <a href="{% url 'top' %}">商品検索へ</a>
+        </p>
+    </body>
+</html>

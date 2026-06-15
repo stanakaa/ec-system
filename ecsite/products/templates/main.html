@@ -43,7 +43,7 @@
             <br>
                 <a href="{% url 'logout' %}">ログアウト</a>
             <br>
-                <a href="#">管理者ページ</a>
+                <a href="{% url 'admin_login' %}">管理者ページ</a>
             <br>
 
         {% else %}
@@ -52,7 +52,7 @@
             </p>
 
             <p>
-                <a href="#">管理者ページ</a>
+                <a href="{% url 'admin_login' %}">管理者ページ</a>
             </p>
         {% endif %}
     </body>

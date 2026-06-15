@@ -12,15 +12,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name='Admin',
             fields=[
-                ('user_id', models.CharField(db_index=True, max_length=128, primary_key=True, serialize=False, verbose_name='会員ID')),
+                ('admin_id', models.CharField(db_index=True, max_length=128, primary_key=True, serialize=False, verbose_name='管理者ID')),
                 ('password', models.CharField(max_length=256, verbose_name='パスワード')),
-                ('name', models.CharField(max_length=128, verbose_name='名前')),
-                ('address', models.CharField(max_length=256, verbose_name='住所')),
             ],
             options={
-                'db_table': 'account_user',
+                'db_table': 'administrator_admin',
             },
         ),
     ]

@@ -32,3 +32,11 @@ INSERT INTO shopping_item (item_id, name, manufacturer, color, price, stock, rec
 (202, 'リュックサック', 'アウトドアジャパン', '緑色', 7800, 18, TRUE, 2),
 (203, 'ショルダーバッグ', '東京レザー', '茶色', 6200, 10, FALSE, 2),
 (204, 'ビジネスバッグ', '日本ビジネス用品', '黒色', 12000, 8, TRUE, 2);
+
+
+INSERT INTO administrator_admin (admin_id, password) VALUES
+('admin001', 'pbkdf2_sha256$dummyadmin001'),
+('admin002', 'pbkdf2_sha256$dummyadmin002'),
+('admin003', 'pbkdf2_sha256$dummyadmin003'),
+('admin004', 'pbkdf2_sha256$dummyadmin004'),
+('admin005', 'pbkdf2_sha256$dummyadmin005');
