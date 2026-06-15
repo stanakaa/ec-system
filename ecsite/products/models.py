@@ -74,9 +74,3 @@ class PurchaseDetail(models.Model):
 
     def __str__(self):
         return self.purchase_detail_id
-
-
-
-
-
-
