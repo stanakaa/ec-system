@@ -4,7 +4,11 @@ from .models import Item, ShoppingCart
 from accounts.models import User
 from .forms import SearchForm
 
-# Create your views here.
+# http://127.0.0.1:8000/ にアクセスしたときにトップページへのリンクを表示
+class Index(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "index.html")
+
 
 class Top(View):
     def get(self, request, *args, **kwargs):
@@ -105,7 +109,7 @@ class AddCart(View):
 class ShowCart(View):
     def get(self, request, *args, **kwargs):
         if "user_id" not in request.session:
-            return redirect("login")
+            return redirect("/accounts/login/?next=/products/cart/")
 
         user_id = request.session["user_id"]
         user = User.objects.get(user_id=user_id)
@@ -134,3 +138,49 @@ class ShowCart(View):
             "login_name": request.session.get("name"),
         }
         return render(request, "cart.html", context)
+
+
+class DeleteCart(View):
+    def post(self, request, cart_id, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        cart_item = ShoppingCart.objects.filter(
+            id=cart_id,
+            user=user,
+        ).first()
+
+        if cart_item is not None:
+            cart_item.delete()
+
+        return redirect("cart")
+    
+
+class UpdateCart(View):
+    def post(self, request, cart_id, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+        
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        cart_item = ShoppingCart.objects.filter(id=cart_id, user=user).first()
+
+        if cart_item is None:
+            return redirect("cart")
+        
+        amount = int(request.POST.get("amount"))
+
+        if amount > cart_item.item.stock:
+            context = {
+                "error": "数量が在庫数を超えています。",
+            }
+            return render(request, "cart", context)
+        
+        cart_item.amount = amount
+        cart_item.save()
+
+        return redirect("cart")

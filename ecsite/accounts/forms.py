@@ -19,8 +19,11 @@ class RegisterForm(forms.Form):
         password = cleaned_data.get('password')
         password2 = cleaned_data.get('password2')
 
-        if password != password2:
-            raise forms.ValidationError("パスワードと確認用パスワードが一致しません")
+        if password or password2:
+            if password != password2:
+                raise forms.ValidationError("パスワードと確認用パスワードが一致しません")
+
+        return cleaned_data
 
 
 class LoginForm(forms.Form):
@@ -29,7 +32,7 @@ class LoginForm(forms.Form):
 
 
 class UpdateUserForm(forms.Form):
-        # 初期化処理でデフォルトでラベルに付与される「：」を削除
+    # 初期化処理でデフォルトでラベルに付与される「：」を削除
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""

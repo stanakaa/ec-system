@@ -33,24 +33,18 @@
         </p>
 
         {% if login_user_id %}
-			<br>
+            <br>
+			<p>
             <h5>ようこそ{{ login_name }}さん</h5>
-
-            <p>
+            </p>
                 <a href="{% url 'user_info' %}">会員情報の確認</a>
-            </p>
-
-            <p>
+            <br>
                 <a href="{% url 'update_user'%}">会員情報の変更</a>
-            </p>
-
-            <p>
+            <br>
                 <a href="{% url 'logout' %}">ログアウト</a>
-            </p>
-
-            <p>
+            <br>
                 <a href="#">管理者ページ</a>
-            </p>
+            <br>
 
         {% else %}
             <p>
