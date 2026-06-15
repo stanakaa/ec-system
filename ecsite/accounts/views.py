@@ -3,6 +3,7 @@ from django.views.generic import View
 from .models import User
 from products.models import ShoppingCart
 from .forms import LoginForm, RegisterForm, UpdateUserForm
+from django.db import transaction
 
 
 class RegisterUser(View):
@@ -233,29 +234,30 @@ class UpdateUserCommit(View):
         else:
             password = old_user.password
 
-        if old_user_id == new_user_id:
-            old_user.password = password
-            old_user.name = form.cleaned_data["name"]
-            old_user.address = form.cleaned_data["address"]
-            old_user.save()
+        with transaction.atomic():
+            if old_user_id == new_user_id:
+                old_user.password = password
+                old_user.name = form.cleaned_data["name"]
+                old_user.address = form.cleaned_data["address"]
+                old_user.save()
 
-            user = old_user
+                user = old_user
 
-        else:
-            new_user = User()
-            new_user.user_id = form.cleaned_data["user_id"]
-            new_user.password = password
-            new_user.name = form.cleaned_data["name"]
-            new_user.address = form.cleaned_data["address"]
-            new_user.save()
+            else:
+                new_user = User()
+                new_user.user_id = form.cleaned_data["user_id"]
+                new_user.password = password
+                new_user.name = form.cleaned_data["name"]
+                new_user.address = form.cleaned_data["address"]
+                new_user.save()
 
-            # ユーザIDが変更になったときにカート情報を新しいユーザIDに移す
-            ShoppingCart.objects.filter(user=old_user).update(user=new_user)
-            # Purchase.objects.filter(user=old_user).update(user=new_user)
+                # ユーザIDが変更になったときにカート情報を新しいユーザIDに移す
+                ShoppingCart.objects.filter(user=old_user).update(user=new_user)
+                # Purchase.objects.filter(user=old_user).update(user=new_user)
 
-            old_user.delete()
+                old_user.delete()
 
-            user = new_user
+                user = new_user
 
         request.session["user_id"] = user.user_id
         request.session["name"] = user.name

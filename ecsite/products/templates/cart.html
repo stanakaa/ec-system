@@ -8,6 +8,11 @@
 
     <body>
         <h2>ショッピングカート</h2>
+        <br>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
 
         <table border="1">
             <tr>
@@ -17,54 +22,50 @@
                 <th>単価</th>
                 <th>数量</th>
                 <th>合計金額</th>
-                <th>修正</th>
                 <th>削除</th>
             </tr>
 
             {% for cart in cart_list %}
-                <tr>
-                    <td>{{ cart.item.name }}</td>
-                    <td>{{ cart.item.color }}</td>
-                    <td>{{ cart.item.manufacturer }}</td>
-                    <td>{{ cart.item.price }}円</td>
+            <tr>
+                <td>{{ cart.item.name }}</td>
+                <td>{{ cart.item.color }}</td>
+                <td>{{ cart.item.manufacturer }}</td>
+                <td>{{ cart.item.price }}円</td>
+        
+                <td>
+                    <form action="{% url 'update_cart' cart.cart_item.id %}" method="POST">
+                        {% csrf_token %}
+        
+                        <select name="amount">
+                            {% for amount in cart.amount_list %}
+                                {% if amount == cart.amount %}
+                                    <option value="{{ amount }}" selected>{{ amount }}</option>
+                                {% else %}
+                                    <option value="{{ amount }}">{{ amount }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+        
+                        <input type="submit" value="修正">
+                    </form>
+                </td>
+        
+                <td>{{ cart.total_price }}円</td>
+                
+                <td>
+                    <form action="{% url 'delete_cart' cart.cart_item.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" value="削除">
+                    </form>
+                </td>
+            </tr>
+        
+        {% empty %}
+            <tr>
+                <td colspan="7">ショッピングカートに商品はありません。</td>
+            </tr>
+        {% endfor %}
 
-                    <td>
-                        <form>
-                            {% csrf_token %}
-
-                            <select name="amount">
-                                {% for amount in cart.amount_list %}
-                                    {% if amount == cart.amount %}
-                                        <option value="{{ amount }}" selected>{{ amount }}</option>
-                                    {% else %}
-                                        <option value="{{ amount }}">{{ amount }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </form>
-                    </td>
-
-                    <td>{{ cart.total_price }}円</td>
-
-                    <td>
-                        <form>
-                            <input type="submit" value="修正">
-                        </form>
-                    </td>
-
-                    <td>
-                        <form>
-                            {% csrf_token %}
-                            <input type="submit" value="削除">
-                        </form>
-                    </td>
-                </tr>
-
-            {% empty %}
-                <tr>
-                    <td colspan="8">ショッピングカートに商品はありません。</td>
-                </tr>
-            {% endfor %}
         </table>
 
         <p>
@@ -78,7 +79,7 @@
         {% endif %}
 
         <p>
-            <a href="{% url 'top' %}">商品検索へ戻る</a>
+            <a href="{% url 'top' %}">商品検索へ</a>
         </p>
     </body>
 </html>

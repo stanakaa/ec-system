@@ -7,8 +7,8 @@
     </head>
 
     <body>
-        <h2>商品詳細</h2>
-
+        <h2>商品の詳細表示</h2>
+        <br>
         <table border="1">
             <tr>
                 <th>商品名</th>
@@ -40,23 +40,19 @@
             <form action="{% url 'add_cart' item.item_id %}" method="POST">
                 {% csrf_token %}
 
-                <p>
                     数量
                     <select name="amount">
                         {% for amount in amount_list %}
                             <option value="{{ amount }}">{{ amount }}</option>
                         {% endfor %}
                     </select>
-                </p>
-
+                
+                <br>
                 <input type="submit" value="ショッピングカートに入れる">
-
             </form>
-
-            <p>
+            
                 ※ログインしていない状態では、ボタンのクリック後、
                 <a href="{% url 'login' %}?next={% url 'item_detail' item.item_id %}">ログイン画面</a>に転送されます。
-            </p>
 
         {% else %}
             <p>在庫がありません。</p>
