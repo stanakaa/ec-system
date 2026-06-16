@@ -1,0 +1,87 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>商品一覧</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>商品一覧</h2>
+
+        <form action="{% url 'item_list' %}" method="GET">
+
+            カテゴリ：
+            <select name="category_id">
+                <option value="all">すべて</option>
+
+                {% for category in categories %}
+                    {% if category.category_id|stringformat:"s" == selected_category_id %}
+                        <option value="{{ category.category_id }}" selected>
+                            {{ category.name }}
+                        </option>
+                    {% else %}
+                        <option value="{{ category.category_id }}">
+                            {{ category.name }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            キーワード：
+            <input type="text" name="keyword" value="{{ keyword }}">
+
+            <input type="submit" value="検索">
+        </form>
+
+        <table border="1">
+            <tr>
+                <th>商品ID</th>
+                <th>商品名</th>
+                <th>カテゴリ</th>
+                <th>メーカー</th>
+                <th>色</th>
+                <th>価格</th>
+                <th>在庫数</th>
+                <th>オススメ</th>
+                <th>操作</th>
+            </tr>
+
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.item_id }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category.name }}</td>
+                    <td>{{ item.manufacturer }}</td>
+                    <td>{{ item.color }}</td>
+                    <td>{{ item.price }}円</td>
+                    <td>{{ item.stock }}</td>
+                    <td>
+                        {% if item.recommended %}
+                            〇
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'item_update' item.item_id %}">変更</a>
+                        /
+                        <a href="{% url 'item_delete' item.item_id %}">削除</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="9">商品が見つかりませんでした。</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <p>
+            <a href="{% url 'item_register' %}">商品登録</a>
+        </p>
+
+        <p>
+            <a href="{% url 'admin_main' %}">管理者メインページへ</a>
+        </p>
+    </body>
+</html>

@@ -1,0 +1,42 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>商品登録</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>商品登録</h2>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        <form action="{% url 'item_register' %}" method="POST">
+            {% csrf_token %}
+
+            <table>
+                {% for field in form %}
+                <tr>
+                    <th>{{ field.label }}</th>
+                    <td>{{ field }}</td>
+                    <td>{{ field.error }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <p>
+                <input type="submit" value="登録"
+            </p>
+        </form>
+
+        <p>
+            <a href="{% url 'item_list' %}">商品一覧へ</a>
+        </p>
+
+        <p>
+            <a href="{% url 'admin_main' %}">管理者メインページへ</a>
+        </p>
+    </body>
+</html>

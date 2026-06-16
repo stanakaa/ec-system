@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from .models import Item, ShoppingCart
+from .models import Item, ShoppingCart, Purchase as PurchaseModel, PurchaseDetail
 from accounts.models import User
-from .forms import SearchForm
+from .forms import SearchForm, PurchaseForm
 
 # http://127.0.0.1:8000/ にアクセスしたときにトップページへのリンクを表示
 class Index(View):
@@ -181,3 +181,190 @@ class UpdateCart(View):
         cart_item.save()
 
         return redirect("cart")
+    
+
+class Purchase(View):
+    def get(self, request, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+        
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        cart_items = ShoppingCart.objects.filter(user=user)
+
+        # エラー渡してもいいかも？
+        if not cart_items.exists():
+            return redirect("cart")
+        
+        cart_list = []
+        total_price_all = 0
+
+        for cart_item in cart_items:
+            total_price = cart_item.item.price * cart_item.amount
+            total_price_all += total_price
+
+            cart_list.append({
+                "cart_item": cart_item,
+                "item": cart_item.item,
+                "amount": cart_item.amount,
+                "amount_list": range(1, cart_item.item.stock + 1),
+                "total_price": total_price,
+            })
+
+        form = PurchaseForm(initial={
+            "destination": user.address,
+            "payment_mothod": "代引き"
+        })
+
+        context = {
+            "form": form,
+            "cart_list": cart_list,
+            "total_price_all": total_price_all,
+            "login_user_id": request.session.get("user_id"),
+            "login_name": request.session.get("name"),
+        }
+        return render(request, "purchase.html", context)
+    
+    def post(self, request, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+        
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        cart_items = ShoppingCart.objects.filter(user=user)
+
+        if not cart_items.exists():
+            return redirect("cart")
+
+        form = PurchaseForm(request.POST)
+
+        cart_list = []
+        total_price_all = 0
+
+        for cart_item in cart_items:
+            total_price = cart_item.item.price * cart_item.amount
+            total_price_all += total_price
+
+            cart_list.append({
+                "cart_item": cart_item,
+                "item": cart_item.item,
+                "amount": cart_item.amount,
+                "total_price": total_price,
+            })
+
+        if not form.is_valid():
+            context = {
+                "form": form,
+                "cart_list": cart_list,
+                "total_price_all": total_price_all,
+                "login_user_id": request.session.get("user_id"),
+                "login_name": request.session.get("name"),
+            }
+
+            return render(request, "purchase.html", context)
+
+        for cart_item in cart_items:
+            if cart_item.amount > cart_item.item.stock:
+                context = {
+                    "form": form,
+                    "cart_list": cart_list,
+                    "total_price_all": total_price_all,
+                    "error": cart_item.item.name + "の在庫が不足しています。",
+                    "login_user_id": request.session.get("user_id"),
+                    "login_name": request.session.get("name"),
+                }
+
+                return render(request, "purchase.html", context)
+
+        last_purchase = PurchaseModel.objects.order_by("-purchase_id").first()
+
+        if last_purchase is None:
+            purchase_id = 1
+        else:
+            purchase_id = last_purchase.purchase_id + 1
+
+        purchase = PurchaseModel(
+            purchase_id=purchase_id,
+            destination=form.cleaned_data["destination"],
+            user=user,
+        )
+
+        purchase.save()
+
+        # 一番最近の注文IDをとってくる
+        last_purchase_detail = PurchaseDetail.objects.order_by("-purchase_detail_id").first()
+
+        if last_purchase_detail is None:
+            purchase_detail_id = 1
+        else:
+            purchase_detail_id = last_purchase_detail.purchase_detail_id + 1
+
+        for cart_item in cart_items:
+            purchase_detail = PurchaseDetail(
+                purchase_detail_id=purchase_detail_id,
+                purchase=purchase,
+                item=cart_item.item,
+                amount=cart_item.amount,
+            )
+
+            purchase_detail.save()
+
+            item = cart_item.item
+            item.stock = item.stock - cart_item.amount
+            item.save()
+
+            purchase_detail_id += 1
+
+        cart_items.delete()
+
+        context = {
+            "purchase": purchase,
+            "login_user_id": request.session.get("user_id"),
+            "login_name": request.session.get("name"),
+        }
+        return render(request, "purchaseCommit.html", context)
+
+
+class PurchaseHistory(View):
+    def get(self, request, *args, **kwargs):
+        if "user_id" not in request.session:
+            return redirect("login")
+
+        user_id = request.session["user_id"]
+        user = User.objects.get(user_id=user_id)
+
+        purchases = PurchaseModel.objects.filter(user=user).order_by("-booked_date")
+
+        purchase_history_list = []
+
+        for purchase in purchases:
+            purchase_details = PurchaseDetail.objects.filter(purchase=purchase)
+
+            detail_list = []
+            total_price_all = 0
+
+            for detail in purchase_details:
+                total_price = detail.item.price * detail.amount
+                total_price_all += total_price
+
+                detail_list.append({
+                    "detail": detail,
+                    "item": detail.item,
+                    "amount": detail.amount,
+                    "total_price": total_price,
+                })
+
+            purchase_history_list.append({
+                "purchase": purchase,
+                "detail_list": detail_list,
+                "total_price_all": total_price_all,
+            })
+
+        context = {
+            "purchase_history_list": purchase_history_list,
+            "login_user_id": request.session.get("user_id"),
+            "login_name": request.session.get("name"),
+        }
+        return render(request, "purchaseHistory.html", context)

@@ -1,0 +1,70 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>購入画面</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>購入画面</h2>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        <h3>購入商品</h3>
+
+        <table border="1">
+            <tr>
+                <th>商品名</th>
+                <th>色</th>
+                <th>メーカー</th>
+                <th>単価</th>
+                <th>数量</th>
+                <th>合計金額</th>
+            </tr>
+
+            {% for cart in cart_list %}
+                <tr>
+                    <td>{{ cart.item.name }}</td>
+                    <td>{{ cart.item.color }}</td>
+                    <td>{{ cart.item.manufacturer }}</td>
+                    <td>{{ cart.item.price }}円</td>
+                    <td>{{ cart.amount }}</td>
+                    <td>{{ cart.total_price }}円</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <p>合計金額：{{ total_price_all }}円</p>
+
+        <h3>配送先・支払方法</h3>
+
+        <form action="{% url 'purchase' %}" method="POST">
+            {% csrf_token %}
+
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <th>{{ field.label }}</th>
+                        <td>{{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <p>
+                <input type="submit" value="購入を確定する">
+            </p>
+        </form>
+
+        <p>
+            <a href="{% url 'cart' %}">ショッピングカートへ戻る</a>
+        </p>
+
+        <p>
+            <a href="{% url 'top' %}">商品検索へ戻る</a>
+        </p>
+    </body>
+</html>

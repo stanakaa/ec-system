@@ -1,0 +1,61 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>商品削除の確認</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>以下の商品を削除しますか？</h2>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        <table border="1">
+            <tr>
+                <th>商品ID</th>
+                <td>{{ item.item_id }}</td>
+            </tr>
+            <tr>
+                <th>商品名</th>
+                <td>{{ item.name }}</td>
+            </tr>
+            <tr>
+                <th>カテゴリ</th>
+                <td>{{ item.category.name }}</td>
+            </tr>
+            <tr>
+                <th>メーカー</th>
+                <td>{{ item.manufacturer }}</td>
+            </tr>
+            <tr>
+                <th>色</th>
+                <td>{{ item.color }}</td>
+            </tr>
+            <tr>
+                <th>価格</th>
+                <td>{{ item.stock }}</td>
+            </tr>
+            <tr>
+                <th>在庫数</th>
+                <td>{{ item.stock }}</td>
+            </tr>
+        </table>
+
+        <form action="{% url 'item_delete' item.item_id %}" method="POST">
+            {% csrf_token %}
+            <p>
+                <input type="submit" value="削除">
+            </p>
+        </form> 
+        <p>
+            <a href="{% url 'item_list' %}">商品一覧へ</a>
+        </p>
+        
+
+
+
+    </body>
+</html>
