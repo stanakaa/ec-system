@@ -39,3 +39,21 @@ class SearchForm(forms.Form):
 #         required=False,
 #         widget=forms.TextInput(attrs={"class": "form-control"})
 #     )
+
+
+class PurchaseForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
+    destination = forms.CharField(
+        label="配送先",
+        max_length=256
+    )
+
+    payment_method = forms.ChoiceField(
+        label="支払方法",
+        choices=(
+            ("代引き", "代引き"),
+        )
+    )

@@ -73,7 +73,7 @@
         </p>
 
         {% if cart_list %}
-            <form action="#" method="GET">
+            <form action="{% url 'purchase' %}" method="GET">
                 <input type="submit" value="購入する">
             </form>
         {% endif %}

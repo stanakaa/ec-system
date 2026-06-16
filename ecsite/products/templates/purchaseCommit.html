@@ -1,0 +1,22 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>購入完了</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>購入完了</h2>
+
+        <p>購入が完了しました。</p>
+
+        <p>注文ID：{{ purchase.purchase_id }}</p>
+
+        <p>配送先：{{ purchase.destination }}</p>
+
+        <p>
+            <a href="{% url 'top' %}">商品検索へ戻る</a>
+        </p>
+    </body>
+</html>

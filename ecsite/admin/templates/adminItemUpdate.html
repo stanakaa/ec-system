@@ -1,0 +1,42 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>商品変更</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>商品変更</h2>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        <form action="{% url 'item_update' item.item_id %}" method="POST">
+            {% csrf_token %}
+
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <th>{{ field.label }}</th>
+                        <td>{{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <p>
+                <input type="submit" value="変更">
+            </p>
+        </form>
+
+        <p>
+            <a href="{% url 'item_list' %}">商品一覧へ</a>
+        </p>
+
+        <p>
+            <a href="{% url 'admin_main' %}">管理者メインページへ</a>
+        </p>
+    </body>
+</html>
