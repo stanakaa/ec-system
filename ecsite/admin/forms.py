@@ -41,4 +41,35 @@ class ItemUpdateForm(forms.Form):
     recommended = forms.BooleanField(label="オススメ", required=False)
 
 
-# class AdminPurchaseHistorySearchForm(forms.Form):
+class AdminPurchaseHistorySearchForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
+    purchase_id = forms.IntegerField(
+        label="注文ID",
+        required=False,
+        min_value=1
+    )
+
+    user_id = forms.CharField(
+        label="会員ID",
+        required=False,
+        max_length=128
+    )
+
+    item_name = forms.CharField(
+        label="商品名",
+        required=False,
+        max_length=128
+    )
+
+    cancel = forms.ChoiceField(
+        label="キャンセル状態",
+        required=False,
+        choices=[
+            ("all", "すべて"),
+            ("not_cancel", "未キャンセル"),
+            ("cancel", "キャンセル済み"),
+        ]
+    )

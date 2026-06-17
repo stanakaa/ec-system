@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from .models import Admin
 from products.models import Category, Item, ShoppingCart, Purchase as PurchaseModel, PurchaseDetail
-from .forms import LoginForm, ItemRegisterForm, ItemUpdateForm #, AdminPurchaseHistorySearchForm
+from .forms import LoginForm, ItemRegisterForm, ItemUpdateForm, AdminPurchaseHistorySearchForm
 
 
 class adminLogin(View):
@@ -274,3 +274,135 @@ class ItemDelete(View):
         item.delete()
 
         return redirect("item_list")
+    
+
+
+class AdminPurchaseHistory(View):
+    def get(self, request, *args, **kwargs):
+        if "admin_id" not in request.session:
+            return redirect("admin_login")
+
+        form = AdminPurchaseHistorySearchForm(request.GET)
+
+        purchases = PurchaseModel.objects.all().order_by("-booked_date")
+
+        if form.is_valid():
+            purchase_id = form.cleaned_data["purchase_id"]
+            user_id = form.cleaned_data["user_id"]
+            item_name = form.cleaned_data["item_name"]
+            cancel = form.cleaned_data["cancel"]
+
+            if purchase_id is not None:
+                purchases = purchases.filter(purchase_id=purchase_id)
+
+            if user_id != "":
+                purchases = purchases.filter(user__user_id__contains=user_id)
+
+            if item_name != "":
+                purchase_ids = PurchaseDetail.objects.filter(
+                    item__name__contains=item_name
+                ).values_list("purchase_id", flat=True)
+
+                purchases = purchases.filter(purchase_id__in=purchase_ids)
+
+            if cancel == "not_cancel":
+                purchases = purchases.filter(cancel=False)
+
+            if cancel == "cancel":
+                purchases = purchases.filter(cancel=True)
+
+        purchase_history_list = []
+
+        for purchase in purchases:
+            purchase_details = PurchaseDetail.objects.filter(purchase=purchase)
+
+            detail_list = []
+            total_price_all = 0
+
+            for detail in purchase_details:
+                total_price = detail.item.price * detail.amount
+                total_price_all += total_price
+
+                detail_list.append({
+                    "detail": detail,
+                    "item": detail.item,
+                    "amount": detail.amount,
+                    "total_price": total_price,
+                })
+
+            purchase_history_list.append({
+                "purchase": purchase,
+                "detail_list": detail_list,
+                "total_price_all": total_price_all,
+            })
+
+        context = {
+            "form": form,
+            "purchase_history_list": purchase_history_list,
+        }
+
+        return render(request, "adminPurchaseHistory.html", context)
+
+
+class PurchaseCancel(View):
+    def get(self, request, purchase_id, *args, **kwargs):
+        if "admin_id" not in request.session:
+            return redirect("admin_login")
+
+        purchase = PurchaseModel.objects.filter(purchase_id=purchase_id).first()
+
+        if purchase is None:
+            return redirect("admin_purchase_history")
+
+        purchase_details = PurchaseDetail.objects.filter(purchase=purchase)
+
+        detail_list = []
+        total_price_all = 0
+
+        for detail in purchase_details:
+            total_price = detail.item.price * detail.amount
+            total_price_all += total_price
+
+            detail_list.append({
+                "detail": detail,
+                "item": detail.item,
+                "amount": detail.amount,
+                "total_price": total_price,
+            })
+
+        context = {
+            "purchase": purchase,
+            "detail_list": detail_list,
+            "total_price_all": total_price_all,
+        }
+
+        return render(request, "adminPurchaseCancel.html", context)
+
+    def post(self, request, purchase_id, *args, **kwargs):
+        if "admin_id" not in request.session:
+            return redirect("admin_login")
+
+        purchase = PurchaseModel.objects.filter(purchase_id=purchase_id).first()
+
+        if purchase is None:
+            return redirect("admin_purchase_history")
+
+        if purchase.cancel:
+            context = {
+                "purchase": purchase,
+                "error": "この注文はすでにキャンセル済みです。",
+            }
+
+            return render(request, "adminPurchaseCancel.html", context)
+
+        purchase_details = PurchaseDetail.objects.filter(purchase=purchase)
+
+        for detail in purchase_details:
+            item = detail.item
+            item.stock = item.stock + detail.amount
+            item.save()
+
+        purchase.cancel = True
+        purchase.save()
+
+        return redirect("admin_purchase_history")
