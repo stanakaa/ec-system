@@ -1,0 +1,88 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>購入履歴一覧</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+
+    <body>
+        <h2>購入履歴検索</h2>
+
+        <form action="{% url 'admin_purchase_history' %}" method="GET">
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <th>{{ field.label }}</th>
+                        <td>{{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <p>
+                <input type="submit" value="検索">
+            </p>
+        </form>
+
+        <hr>
+
+        {% for purchase_history in purchase_history_list %}
+            <h3>注文ID：{{ purchase_history.purchase.purchase_id }}</h3>
+
+            <p>注文日：{{ purchase_history.purchase.booked_date }}</p>
+            <p>会員ID：{{ purchase_history.purchase.user.user_id }}</p>
+            <p>会員名：{{ purchase_history.purchase.user.name }}</p>
+            <p>配送先：{{ purchase_history.purchase.destination }}</p>
+
+            <p>
+                キャンセル状態：
+                {% if purchase_history.purchase.cancel %}
+                    キャンセル済み
+                {% else %}
+                    未キャンセル
+                {% endif %}
+            </p>
+
+            <table border="1">
+                <tr>
+                    <th>商品ID</th>
+                    <th>商品名</th>
+                    <th>色</th>
+                    <th>メーカー</th>
+                    <th>単価</th>
+                    <th>数量</th>
+                    <th>合計金額</th>
+                </tr>
+
+                {% for detail in purchase_history.detail_list %}
+                    <tr>
+                        <td>{{ detail.item.item_id }}</td>
+                        <td>{{ detail.item.name }}</td>
+                        <td>{{ detail.item.color }}</td>
+                        <td>{{ detail.item.manufacturer }}</td>
+                        <td>{{ detail.item.price }}円</td>
+                        <td>{{ detail.amount }}</td>
+                        <td>{{ detail.total_price }}円</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <p>注文合計金額：{{ purchase_history.total_price_all }}円</p>
+
+            {% if not purchase_history.purchase.cancel %}
+                <p>
+                    <a href="{% url 'purchase_cancel' purchase_history.purchase.purchase_id %}">キャンセル手続き</a>
+                </p>
+            {% endif %}
+
+            <hr>
+        {% empty %}
+            <p>購入履歴はありません。</p>
+        {% endfor %}
+
+        <p>
+            <a href="{% url 'admin_main' %}">管理者メインページへ</a>
+        </p>
+    </body>
+</html>
